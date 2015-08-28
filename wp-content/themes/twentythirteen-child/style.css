@@ -1,0 +1,12 @@
+/*
+Theme Name: Twenty Thirteen Child
+Author: Roberto Aguilar
+Description: Child Theme
+Template: twentythirteen
+Version: 1.6
+*/
+@import url("../twentythirteen/style.css");
+
+.entry-title{
+	background-color: yellow;
+}
