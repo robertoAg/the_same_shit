@@ -1,2 +1,5 @@
 <?php
-    class RW_InvalidArgumentException extends RW_Exception { }
+
+class RW_InvalidArgumentException extends RW_Exception
+{
+}

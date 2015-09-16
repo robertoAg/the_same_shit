@@ -1,97 +1,128 @@
 <?php
+
 /*
  * The content of the Add Ons page.
  * Called from addons_settings_page_render method in rating-widget.php
  */
-
 $addons = ratingwidget()->get_addons();
-
 $admin_notice_classes = 'addons-page-notice update-nag';
-
-global $wp_version;
-
+global  $wp_version ;
 // Use additional class for the different versions of WordPress
 // in order to have the correct message styles.
-if ($wp_version < 3 ) {
-	$admin_notice_classes .= ' updated';
-} else if ($wp_version >= 3.8 ) {
-	$admin_notice_classes .= ' success';
+
+if ( $wp_version < 3 ) {
+    $admin_notice_classes .= ' updated';
+} else {
+    if ( $wp_version >= 3.8 ) {
+        $admin_notice_classes .= ' success';
+    }
 }
 
-$message = __('Thanks for subscribing to the waiting list - we will let you know when the Add On is ready.', WP_RW__ID);
-ratingwidget()->Notice($message, $admin_notice_classes);
+$message = __( 'Thanks for subscribing to the waiting list - we will let you know when the Add On is ready.', WP_RW__ID );
+ratingwidget()->Notice( $message, $admin_notice_classes );
 ?>
 <div class="wrap rw-dir-ltr">
-	<h2 class="entry-title"><?php _e('Add Ons for RatingWidget', WP_RW__ID); ?></h2>
+	<h2 class="entry-title"><?php 
+_e( 'Add Ons for RatingWidget', WP_RW__ID );
+?>
+</h2>
 	<form id="rw-addons-page" method="post" action="">
 		<div id="poststuff">
 			<div class="postbox rw-body">
 				<div class="inside rw-ui-content-container rw-no-radius">
 					<div class="entry-content">
 						<ul class="rw-addon-grid clearfix">
-							<?php
-							foreach ( $addons as $idx => $addon ) {
-								$pricing = $addon['pricing'][0];
-								$price = $pricing['annual_price'];
-								$is_free = (NULL === $price);
-								?>
-								<li class="rw-addon<?php echo $is_free ? ' free' : ''; ?>" data-idx="<?php echo $idx; ?>">
+							<?php 
+foreach ( $addons as $idx => $addon ) {
+    $pricing = $addon['pricing'][0];
+    $price = $pricing['annual_price'];
+    $is_free = NULL === $price;
+    ?>
+								<li class="rw-addon<?php 
+    echo  ( $is_free ? ' free' : '' ) ;
+    ?>
+" data-idx="<?php 
+    echo  $idx ;
+    ?>
+">
 									<div class="rw-addon-inner">
 										<a href="#" class="rw-addon-overlay"></a>
 										<div class="rw-addon-content-wrapper">
-											<div class="rw-addon-content" style="background-image: url('<?php echo $addon['thumbnail_url']; ?>')">
+											<div class="rw-addon-content" style="background-image: url('<?php 
+    echo  $addon['thumbnail_url'] ;
+    ?>
+')">
 												<ul>
 													<li class="rw-addon-banner"></li>
 													<li class="rw-addon-title">
-														<?php echo $addon['title']; ?>
+														<?php 
+    echo  $addon['title'] ;
+    ?>
 													</li>
 													<span>
 														<li class="rw-addon-price">
-														  <?php echo $price; ?> <span class="price-per">/ year</span>
+														  <?php 
+    echo  $price ;
+    ?>
+ <span class="price-per">/ year</span>
 														</li>
 													</span>
 													<li class="rw-addon-rating">
 														<span class="rw-addon-rating-reviews">
-															<span class="purchase-text"><?php echo $is_free ? __('Free', WP_RW__ID) : __('Purchase', WP_RW__ID); ?></span>
-															<input type="submit" class="button button-primary" value="<?php _e('Purchase', WP_RW__ID); ?>"/>
+															<span class="purchase-text"><?php 
+    echo  ( $is_free ? __( 'Free', WP_RW__ID ) : __( 'Purchase', WP_RW__ID ) ) ;
+    ?>
+</span>
+															<input type="submit" class="button button-primary" value="<?php 
+    _e( 'Purchase', WP_RW__ID );
+    ?>
+"/>
 														</span>
-														<?php
-														// Calculate the number of half stars needed for the star-rating display.
-														$avg_rate = $addon['avg_rate'];
-														$rating = intval($avg_rate);
-
-														$avg_rate = round($avg_rate, 0);
-
-														$score = $rating * 10;
-														
-														if ($rating < $avg_rate) {
-															// Add one half-star
-															$score += 5;
-														}
-														?>
-														<span class="appcard-rating-star appcard-rating-<?php echo $score; ?>"><span></span></span>
+														<?php 
+    // Calculate the number of half stars needed for the star-rating display.
+    $avg_rate = $addon['avg_rate'];
+    $rating = intval( $avg_rate );
+    $avg_rate = round( $avg_rate, 0 );
+    $score = $rating * 10;
+    if ( $rating < $avg_rate ) {
+        // Add one half-star
+        $score += 5;
+    }
+    ?>
+														<span class="appcard-rating-star appcard-rating-<?php 
+    echo  $score ;
+    ?>
+"><span></span></span>
 													</li>
 													<li class="rw-addon-description">
-														<?php echo $addon['description']; ?>
+														<?php 
+    echo  $addon['description'] ;
+    ?>
 													</li>
 												</ul>
 											</div>
 										</div>
 									</div>
 								</li>
-								<?php
-							}
-							?>
+								<?php 
+}
+?>
 						</ul>
 					</div>
 				</div>
 			</div>
 		</div>
 		<div id="rw-addons-popup-dialog">
-			<p><?php _e("The add-on is still not ready for final use, would you like us to let you know when it's ready? Or just anonymously tell us it's interesting?", WP_RW__ID); ?></p>
+			<p><?php 
+_e( 'The add-on is still not ready for final use, would you like us to let you know when it\'s ready? Or just anonymously tell us it\'s interesting?', WP_RW__ID );
+?>
+</p>
 			<input type="hidden" class="addon-action" value=""/>
 		</div>
-		<input type="hidden" id="wp-version" value="<?php echo $wp_version; ?>"
+		<input type="hidden" id="wp-version" value="<?php 
+echo  $wp_version ;
+?>
+"
 	</form>
 	<script>
 		(function($) {
@@ -100,19 +131,28 @@ ratingwidget()->Notice($message, $admin_notice_classes);
 				
 				var $popupDialog = $("#rw-addons-popup-dialog");
 				var dialogOptions = {
-					'title'			: '<?php _e('Oops... ', WP_RW__ID); ?>',
+					'title'			: '<?php 
+_e( 'Oops... ', WP_RW__ID );
+?>
+',
 					'dialogClass'   : wpVersion > 3 ? 'wp-dialog' : 'wp-custom-dialog',           
 					'modal'         : true,
 					'autoOpen'      : false, 
 					'closeOnEscape' : true,      
 					'width'			: 430,
 					'buttons'       : { // Add button labels in this way so that it will work with WordPress 3.0 and below
-							'<?php _e('Yes - add me to the waiting list', WP_RW__ID); ?>': function() {
+							'<?php 
+_e( 'Yes - add me to the waiting list', WP_RW__ID );
+?>
+': function() {
 								$('.addons-page-notice').show();
 								sendData({addon_action: $popupDialog.find('.addon-action').val(), add_user: true});
 								$popupDialog.dialog('close');
 							},
-							'<?php _e("It\'s just interesting", WP_RW__ID); ?>': function() {
+							'<?php 
+_e( 'It\\\'s just interesting', WP_RW__ID );
+?>
+': function() {
 								sendData({addon_action: $popupDialog.find('.addon-action').val()});
 								$popupDialog.dialog('close');
 							}
@@ -182,7 +222,10 @@ ratingwidget()->Notice($message, $admin_notice_classes);
 			function sendData(extraDetails) {
 				var data = {
 					action: 'rw-addon-request',
-					_n: '<?php echo wp_create_nonce('rw_send_addon_request'); ?>',
+					_n: '<?php 
+echo  wp_create_nonce( 'rw_send_addon_request' ) ;
+?>
+',
 					addon_key: $('li.rw-addon.active').attr('data-idx')
 				};
 
@@ -190,7 +233,10 @@ ratingwidget()->Notice($message, $admin_notice_classes);
 					$.extend(data, extraDetails);
 				}
 
-				var ajaxUrl = '<?php echo admin_url('admin-ajax.php'); ?>';
+				var ajaxUrl = '<?php 
+echo  admin_url( 'admin-ajax.php' ) ;
+?>
+';
 				$.ajax({
 					url: ajaxUrl,
 					data: data
@@ -199,4 +245,5 @@ ratingwidget()->Notice($message, $admin_notice_classes);
 		})(jQuery);
 	</script>
 </div>
-<?php fs_require_template('powered-by.php') ?>
+<?php 
+fs_require_template( 'powered-by.php' );
