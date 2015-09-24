@@ -136,7 +136,7 @@ function rw_the_post_shortcode( $atts )
         RWLogger::Log( 'rw_the_post_shortcode', var_export( $atts, true ) );
     }
     extract( shortcode_atts( array(
-        'post_id'    => 1,
+        'post_id'    => false,
         'type'       => 'blog-post',
         'add_schema' => false,
     ), $atts ) );

@@ -4961,6 +4961,11 @@
 					__( 'Ye-ha!', WP_FS__SLUG )
 				);
 			}
+
+			$this->_admin_notices->remove_sticky(array(
+				'trial_promotion',
+				'license_expired',
+			));
 		}
 
 		/**

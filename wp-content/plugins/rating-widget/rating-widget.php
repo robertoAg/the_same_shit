@@ -4,7 +4,7 @@
  * Plugin Name: Rating-Widget: Star Review System
  * Plugin URI:  http://rating-widget.com/wordpress-plugin/
  * Description: Create and manage Rating-Widget ratings in WordPress.
- * Version:     2.6.5
+ * Version:     2.6.6
  * Author:      Rating-Widget
  * Author URI:  http://rating-widget.com/wordpress-plugin/
  * License:     GPLv2
@@ -15,6 +15,7 @@
  * @copyright   Copyright (c) 2015, Rating-Widget, Inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License
  * @since       1.0.0
+ *
  */
 if ( !defined( 'ABSPATH' ) ) {
     die;
@@ -382,7 +383,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
          */
         private function is_api_supported()
         {
-            return false !== rwapi();
+            return rwapi()->is_supported();
         }
         
         /**
@@ -6190,7 +6191,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             }
             
             // API only supported in the Professional plan, so no reason to make calls that will return errors.
-            if ( !$this->fs->is_plan_or_trial( 'professional' ) || false === rwapi() ) {
+            if ( !$this->fs->is_plan_or_trial( 'professional' ) || !$this->is_api_supported() ) {
                 return false;
             }
             $rating = rwapi()->get( '/ratings/' . $pRatingID . '.json?is_external=true&fields=id,approved_count,avg_rate', false, WP_RW__CACHE_TIMEOUT_RICH_SNIPPETS );
@@ -6387,7 +6388,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
     
     function rw_migration_to_freemius()
     {
-        if ( false === rwapi() ) {
+        if ( !rwapi()->is_supported() ) {
             // RW identity is not complete, cannot make API calls.
             return true;
         }
@@ -6460,11 +6461,15 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
         
         // Save new RW credentials.
         $rw_account->save();
-        // Send uninstall event.
-        $rw_fs->_uninstall_plugin_event( false );
-        if ( 'true' === rw_request_get( 'delete_account' ) ) {
-            $rw_fs->delete_account_event( false );
+        
+        if ( $rw_fs->is_registered() ) {
+            // Send uninstall event.
+            $rw_fs->_uninstall_plugin_event( false );
+            if ( 'true' === rw_request_get( 'delete_account' ) ) {
+                $rw_fs->delete_account_event( false );
+            }
         }
+        
         
         if ( rw_migration_to_freemius() ) {
             fs_redirect( $rw_fs->_get_admin_page_url( 'account' ) );
@@ -6484,17 +6489,14 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
     $account = rw_account();
     // Init RW API (must be called after account is loaded).
     rwapi();
-    global  $rw_fs ;
     
-    if ( $rw_fs->is_registered() && !$rw_fs->is_ajax() ) {
-        if ( rw_request_is_action( 'rw_reset_account' ) ) {
-            rw_reset_account();
-        }
+    if ( rw_request_is_action( 'rw_reset_account' ) && !$rw_fs->is_ajax() ) {
+        rw_reset_account();
     } else {
-        if ( $rw_fs->is_plugin_upgrade_mode() || rw_request_is_action( 'rw_migrate_to_freemius' ) ) {
+        if ( !$fs->is_registered() && ($fs->is_plugin_upgrade_mode() || rw_request_is_action( 'rw_migrate_to_freemius' )) ) {
             // Migration to new Freemius account management.
             if ( rw_migration_to_freemius() ) {
-                $rw_fs->set_plugin_upgrade_complete();
+                $fs->set_plugin_upgrade_complete();
             }
         }
     }

@@ -4,7 +4,7 @@ Donate link: http://rating-widget.com/pricing/wordpress/
 Tags: rate, rating, ratings, vote, votes, voting, star, stars, like, dislike, thumbs, widget, widgets, star rating, thumb rating, rating platform, rating system, seo, post rating, comment rating, 5 star, five star, sidebar, comment, comments, post, posts, page, pages, google, admin, administrator, review, reviews, rich-snippets, plugin, plugins, ajax, buddypress, bbpress, social, javascript, js, wordpress, meta, woocommerce, jquery, contest, competition, voting contest, rtmedia
 Requires at least: 2.9
 Tested up to: 4.3
-Stable tag: 2.6.5
+Stable tag: 2.6.6
 License: GPLv2 or later
 
 The most popular Five Star Review System on the web. User-friendly ratings for: posts, pages, comments, WooCommerce, BuddyPress and bbPress forums.
@@ -181,6 +181,11 @@ If you didn't find a solution to your problem yet, check out our [WordPress Know
 The RatingWidget Team
 
 == Change Log ==
+
+= 2.6.6 - 2015-09-17
+* Fix: Resolved the upgrade issues users without an API secret-key were having on upgrade to the new version.
+* Fix: The [ratingwidget] shortcode can now retrieve the current post's ID if the post_id attribute is not set.
+* New: Added an option to force account reset with external details.
 
 = 2.6.5 - 2015-09-12 =
 * Update: Improved API connectivity messaging + added the error from the API call when user submit a request to fix.
