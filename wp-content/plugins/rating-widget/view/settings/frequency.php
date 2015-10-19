@@ -3,59 +3,64 @@
 $frequency = rw_options()->frequency;
 ?>
 <div id="rw_frequency_settings" class="has-sidebar has-right-sidebar">
-    <div class="has-sidebar-content">
-        <div class="postbox rw-body">
-            <h3>Voting Frequency Settings</h3>
-            <div class="inside rw-ui-content-container rw-no-radius" style="padding: 5px; width: 610px;">
-	            <?php 
+	<div class="has-sidebar-content">
+		<div class="postbox rw-body">
+			<h3><?php 
+_erw( 'voting-frequency-settings' );
+?>
+</h3>
+
+			<div class="inside rw-ui-content-container rw-no-radius" style="padding: 5px; width: 610px;">
+				<?php 
 $frquencies = array(
     array(
     'f'     => 'ONCE',
-    'label' => __( 'Once', WP_RW__ID ),
+    'label' => __rw( 'once' ),
     'days'  => -1,
-    'desc'  => __( 'user can vote only once per rating', WP_RW__ID ),
+    'desc'  => __rw( 'once_desc' ),
 ),
     array(
     'f'     => 'DAILY',
-    'label' => __( 'Daily', WP_RW__ID ),
+    'label' => __rw( 'daily' ),
     'days'  => 1,
-    'desc'  => __( 'user can vote once a day for every rating', WP_RW__ID ),
+    'desc'  => __rw( 'daily_desc' ),
 ),
     array(
     'f'     => 'WEEKLY',
-    'label' => __( 'Weekly', WP_RW__ID ),
+    'label' => __rw( 'weekly' ),
     'days'  => 7,
-    'desc'  => __( 'user can vote once a week (7 days) for every rating', WP_RW__ID ),
+    'desc'  => __rw( 'weekly_desc' ),
 ),
     array(
     'f'     => 'MONTHLY',
-    'label' => __( 'Monthly', WP_RW__ID ),
+    'label' => __rw( 'monthly' ),
     'days'  => 30,
-    'desc'  => __( 'user can vote once a month (30 days) for every rating', WP_RW__ID ),
+    'desc'  => __rw( 'monthly_desc' ),
 ),
     array(
     'f'     => 'YEARLY',
-    'label' => __( 'Annually', WP_RW__ID ),
+    'label' => __rw( 'annually' ),
     'days'  => 365,
-    'desc'  => __( 'user can vote once a year (365 days) for every rating', WP_RW__ID ),
+    'desc'  => __rw( 'annually_desc' ),
 ),
     array(
     'f'     => 'UNLIMITED',
-    'label' => __( 'Unlimited', WP_RW__ID ),
+    'label' => __rw( 'unlimited' ),
     'days'  => 0,
-    'desc'  => __( 'user can vote as many times as he likes', WP_RW__ID ),
+    'desc'  => __rw( 'unlimited_desc' ),
 )
 );
 ?>
-	            <select>
-		            <?php 
+				<select>
+					<?php 
 foreach ( $frquencies as $f ) {
     $selected = $frequency == $f['days'];
     ?>
-			            <option name="rw_frequency" data-frequency="<?php 
+						<option name="rw_frequency" data-frequency="<?php 
     echo  $f['f'] ;
     ?>
-" value="<?php 
+"
+						        value="<?php 
     echo  $f['days'] ;
     ?>
 " <?php 
@@ -67,18 +72,18 @@ foreach ( $frquencies as $f ) {
     echo  $f['label'] . ' - ' . $f['desc'] ;
     ?>
 </option>
-		            <?php 
+					<?php 
 }
 ?>
-	            </select>
+				</select>
 				<script type="text/javascript">
-					(function($) {
-						$('#rw_frequency_settings select').chosen({width: '100%'}).change(function(evt, params) {
+					(function ($) {
+						$('#rw_frequency_settings select').chosen({width: '100%'}).change(function (evt, params) {
 							RWM.Set.frequency(RW.FREQUENCY[$(this).find('option[value=' + params.selected + ']').attr('data-frequency')]);
 						});
 					})(jQuery);
 				</script>
-            </div>
-        </div>
-    </div>
+			</div>
+		</div>
+	</div>
 </div>

@@ -5,7 +5,10 @@ $nero = rw_options()->advanced->nero;
 <table id="rw_nero_settings" cellspacing="0" style="display: none;">
     <tr id="rw_nero_show" class="rw-odd">
         <td class="rw-ui-def-width">
-            <span class="rw-ui-def">Show Thumbs:</span>
+            <span class="rw-ui-def"><?php 
+_erw( 'show-thumbs' );
+?>
+:</span>
         </td>
         <td>
             <div class="rw-ui-img-radio<?php 

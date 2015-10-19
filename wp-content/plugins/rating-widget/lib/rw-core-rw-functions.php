@@ -31,6 +31,20 @@ function rw_last_index_of( $haystack, $needle )
     return -1;
 }
 
+function __rw( $key )
+{
+    global  $rw_text ;
+    if ( !isset( $rw_text ) ) {
+        require_once dirname( __FILE__ ) . '/rw-text.php';
+    }
+    return ( isset( $rw_text[$key] ) ? $rw_text[$key] : $key );
+}
+
+function _erw( $key )
+{
+    echo  __rw( $key ) ;
+}
+
 /* Url.
 	--------------------------------------------------------------------------------------------*/
 function rw_admin_url( $path = 'admin.php', $page = WP_RW__ADMIN_MENU_SLUG, $scheme = 'admin' )
@@ -257,12 +271,12 @@ function rw_site_redirect( $location = '' )
 /**
  * Redirects to another page, with a workaround for the IIS Set-Cookie bug.
  *
- * @link http://support.microsoft.com/kb/q176113/
+ * @link  http://support.microsoft.com/kb/q176113/
  * @since 1.5.1
- * @uses apply_filters() Calls 'wp_redirect' hook on $location and $status.
+ * @uses  apply_filters() Calls 'wp_redirect' hook on $location and $status.
  *
  * @param string $location The path to redirect to
- * @param int $status Status code to use
+ * @param int    $status   Status code to use
  *
  * @return bool False if $location is not set
  */

@@ -4,7 +4,7 @@ Donate link: http://rating-widget.com/pricing/wordpress/
 Tags: rate, rating, ratings, vote, votes, voting, star, stars, like, dislike, thumbs, widget, widgets, star rating, thumb rating, rating platform, rating system, seo, post rating, comment rating, 5 star, five star, sidebar, comment, comments, post, posts, page, pages, google, admin, administrator, review, reviews, rich-snippets, plugin, plugins, ajax, buddypress, bbpress, social, javascript, js, wordpress, meta, woocommerce, jquery, contest, competition, voting contest, rtmedia
 Requires at least: 2.9
 Tested up to: 4.3
-Stable tag: 2.6.6
+Stable tag: 2.6.9
 License: GPLv2 or later
 
 The most popular Five Star Review System on the web. User-friendly ratings for: posts, pages, comments, WooCommerce, BuddyPress and bbPress forums.
@@ -182,13 +182,24 @@ The RatingWidget Team
 
 == Change Log ==
 
-= 2.6.6 - 2015-09-17
+= 2.6.9 - 2015-10-13 =
+* Fix: Renamed workflows shortcode from wf to rw_wf since was colliding with other themes / plugins.
+
+= 2.6.8 - 2015-10-12 =
+* Fix: Minor bug fix in the activation.
+
+= 2.6.7 - 2015-10-12 =
+* Optimization: Prepared plugin for WordPress.org Language Packs release.
+* New: Implemented Workflows! A rule-engine based on rating related actions.
+* New: Released first Add-On!
+
+= 2.6.6 - 2015-09-17 =
 * Fix: Resolved the upgrade issues users without an API secret-key were having on upgrade to the new version.
 * Fix: The [ratingwidget] shortcode can now retrieve the current post's ID if the post_id attribute is not set.
 * New: Added an option to force account reset with external details.
 
 = 2.6.5 - 2015-09-12 =
-* Update: Improved API connectivity messaging + added the error from the API call when user submit a request to fix.
+* Fix: Improved API connectivity messaging + added the error from the API call when user submit a request to fix.
 * Optimization: No need to validate connectivity after the user is already register, since there might be temporary connectivity issues which the plugin must handle.
 
 = 2.6.4 - 2015-09-11 =

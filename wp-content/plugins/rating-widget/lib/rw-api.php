@@ -255,6 +255,17 @@ class RW_Api
     }
     
     /**
+     * Clears the cache for the specific endpoint.
+     * 
+     * @param string $path
+     */
+    public function unset_get_cache( $path = '/' )
+    {
+        $cache_key = $this->get_cache_key( $path );
+        self::$_cache->unset_option( $cache_key, true );
+    }
+    
+    /**
      * @return bool True if successful connectivity to the API.
      */
     public function test()

@@ -28,7 +28,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
             $this->rw_address = WP_RW__ADDRESS;
             $widget_ops = array(
                 'classname'   => 'rw_top_rated',
-                'description' => __( 'A list of your top rated posts.' ),
+                'description' => __rw( 'top-rated-posts' ),
             );
             parent::__construct( strtolower( 'RatingWidgetPlugin_TopRatedWidget' ), 'Rating-Widget: Top Rated', $widget_ops );
             if ( RWLogger::IsOn() ) {
@@ -124,7 +124,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
             if ( !isset( $rw_ret_obj->data ) ) {
                 return;
             }
-            $title = ( empty($instance['title']) ? __( 'Top Rated', WP_RW__ID ) : apply_filters( 'widget_title', $instance['title'] ) );
+            $title = ( empty($instance['title']) ? __rw( 'top-rated' ) : apply_filters( 'widget_title', $instance['title'] ) );
             $titleMaxLength = ( isset( $instance['title_max_length'] ) && is_numeric( $instance['title_max_length'] ) ? (int) $instance['title_max_length'] : 30 );
             $empty = true;
             $toprated_data = new stdClass();
@@ -677,7 +677,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
             echo  $this->get_field_id( 'title' ) ;
             ?>
 "><?php 
-            _e( 'Widget Title', WP_RW__ID );
+            _erw( 'widget-title' );
             ?>
 									: <input id="<?php 
             echo  $this->get_field_id( 'title' ) ;
@@ -697,7 +697,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
             echo  $this->get_field_id( 'title_max_length' ) ;
             ?>
 "><?php 
-            _e( 'Title Max Length', WP_RW__ID );
+            _erw( 'title-max-length' );
             ?>
 									: <input style="width: 110px;"
 									         id="<?php 
@@ -843,7 +843,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
                 $values["{$type}_title"] = ( empty($values["{$type}_title"]) ? $typeTitle : $values["{$type}_title"] );
                 ?>
 											<?php 
-                _e( 'Title', WP_RW__ID );
+                _erw( 'title' );
                 ?>
 :
 										</label>
@@ -871,7 +871,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
                 echo  $values["{$type}_count"] ;
                 ?>
 "><?php 
-                _e( 'Max Items', WP_RW__ID );
+                _erw( 'max-items' );
                 ?>
 											:
 											<select id="<?php 
@@ -897,7 +897,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
                 echo  $this->get_field_id( "{$type}_min_votes" ) ;
                 ?>
 "><?php 
-                _e( 'Min Votes', WP_RW__ID );
+                _erw( 'min-votes' );
                 ?>
 											(>= 1):
 											<input style="width: 40px; text-align: center;"
@@ -923,7 +923,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
                 echo  $values["{$type}_orderby"] ;
                 ?>
 "><?php 
-                _e( 'Order By', WP_RW__ID );
+                _erw( 'orderby' );
                 ?>
 											:
 											<select id="<?php 
@@ -949,7 +949,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
                 echo  $values["{$type}_order"] ;
                 ?>
 "><?php 
-                _e( 'Order', WP_RW__ID );
+                _erw( 'order' );
                 ?>
 											:
 											<select id="<?php 
@@ -965,14 +965,26 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
                 echo  ( $values["{$type}_order"] == 'DESC' ? ' selected=\'selected\'' : '' ) ;
                 ?>
 >
-													BEST (Descending)
+													<?php 
+                _erw( 'best' );
+                ?>
+ (<?php 
+                _erw( 'descending' );
+                ?>
+)
 												</option>
 												<option
 													value="ASC"<?php 
                 echo  ( $values["{$type}_order"] == 'ASC' ? ' selected=\'selected\'' : '' ) ;
                 ?>
 >
-													WORST (Ascending)
+													<?php 
+                _erw( 'worst' );
+                ?>
+ (<?php 
+                _erw( 'ascending' );
+                ?>
+)
 												</option>
 											</select>
 										</label>
@@ -980,12 +992,12 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
 
 									<?php 
                 $since_created_options = array(
-                    WP_RW__TIME_ALL_TIME        => __( 'All Time', WP_RW__ID ),
-                    WP_RW__TIME_YEAR_IN_SEC     => __( 'Last Year', WP_RW__ID ),
-                    WP_RW__TIME_6_MONTHS_IN_SEC => __( 'Last 6 Months', WP_RW__ID ),
-                    WP_RW__TIME_30_DAYS_IN_SEC  => __( 'Last 30 Days', WP_RW__ID ),
-                    WP_RW__TIME_WEEK_IN_SEC     => __( 'Last 7 Days', WP_RW__ID ),
-                    WP_RW__TIME_24_HOURS_IN_SEC => __( 'Last 24 Hours', WP_RW__ID ),
+                    WP_RW__TIME_ALL_TIME        => __rw( 'all-time', WP_RW__ID ),
+                    WP_RW__TIME_YEAR_IN_SEC     => __rw( 'last-year', WP_RW__ID ),
+                    WP_RW__TIME_6_MONTHS_IN_SEC => sprintf( __rw( 'last-x-months' ), 6 ),
+                    WP_RW__TIME_30_DAYS_IN_SEC  => sprintf( __rw( 'last-x-days' ), 30 ),
+                    WP_RW__TIME_WEEK_IN_SEC     => sprintf( __rw( 'last-x-days' ), 7 ),
+                    WP_RW__TIME_24_HOURS_IN_SEC => sprintf( __rw( 'last-x-hours' ), 24 ),
                 );
                 ?>
 									<p>
@@ -994,7 +1006,7 @@ if ( class_exists( 'WP_Widget' ) && !class_exists( 'RatingWidgetPlugin_TopRatedW
                 echo  $values["{$type}_since_created"] ;
                 ?>
 "><?php 
-                printf( __( '%s created in:', WP_RW__ID ), $typeTitle );
+                printf( __rw( 's-created-in' ), $typeTitle );
                 ?>
 											<select id="<?php 
                 echo  $this->get_field_id( "{$type}_since_created" ) ;

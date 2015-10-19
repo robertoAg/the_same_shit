@@ -13,12 +13,13 @@ $options = $rwp->get_options_by_class( $rclass );
 $default_hide_recommendations = ( isset( $options->hideRecommendations ) ? $options->hideRecommendations : false );
 ?>
 <p>
-	<input type="hidden" name="rw_comment_meta_box_nonce" value="<?php 
+	<input type="hidden" name="rw_comment_meta_box_nonce"
+	       value="<?php 
 echo  wp_create_nonce( basename( WP_RW__PLUGIN_FILE_FULL ) ) ;
 ?>
-" />
-	<table class="rw-rating-table rw-comment-admin-rating rw-left">
-		<?php 
+"/>
+<table class="rw-rating-table rw-comment-admin-rating rw-left">
+	<?php 
 $urid_summary = $rwp->get_rating_id_by_element( $comment->comment_ID, $rclass, false );
 $criterion_id = 1;
 foreach ( $multirating_options->criteria as $criterion_key => $criterion ) {
@@ -34,13 +35,16 @@ foreach ( $multirating_options->criteria as $criterion_key => $criterion ) {
         $criterion_rclass
     );
     ?>
-		<tr>
-		<td>
-			<div><nobr><?php 
+			<tr>
+				<td>
+					<div>
+						<nobr><?php 
     echo  ( isset( $criterion['label'] ) && !empty($criterion['label']) ? $criterion['label'] : '' ) ;
     ?>
-</nobr></div>
-			<div class="rw-ui-container rw-class-<?php 
+</nobr>
+					</div>
+					<div
+						class="rw-ui-container rw-class-<?php 
     echo  $criterion_rclass ;
     ?>
 " <?php 
@@ -49,13 +53,13 @@ foreach ( $multirating_options->criteria as $criterion_key => $criterion ) {
  <?php 
     echo  ( $multi_criterion || $default_hide_recommendations ? ' data-hide-recommendations="true" ' : '' ) ;
     ?>
- data-urid="<?php 
+						data-urid="<?php 
     echo  $urid ;
     ?>
 " data-sync="false"></div>
-			<p></p>
-		</td>
-		</tr>
+					<p></p>
+				</td>
+			</tr>
 		<?php 
 }
 
@@ -68,50 +72,65 @@ if ( $multirating_options->show_summary_rating && $multi_criterion ) {
     );
     ?>
 			<tr>
-			<td>
-				<div><nobr><?php 
+				<td>
+					<div>
+						<nobr><?php 
     echo  ( isset( $multirating_options->summary_label ) && !empty($multirating_options->summary_label) ? $multirating_options->summary_label : '' ) ;
     ?>
-</nobr></div>
-				<div class="rw-ui-container rw-class-<?php 
+</nobr>
+					</div>
+					<div
+						class="rw-ui-container rw-class-<?php 
     echo  $rclass ;
     ?>
 " <?php 
     echo  ( $default_hide_recommendations ? ' data-hide-recommendations="true" ' : '' ) ;
     ?>
- data-urid="<?php 
+						data-urid="<?php 
     echo  $urid_summary ;
     ?>
 " data-read-only="true" data-force-sync="true"></div>
-				<p></p>
-			</td>
+					<p></p>
+				</td>
 			</tr>
-			<?php 
+		<?php 
 }
 
 ?>
-	</table>
-	<label for="rw_include_comment_rating"><input type="checkbox" name="rw_include_comment_rating" id="rw_include_comment_rating" value="1"<?php 
+</table>
+<label for="rw_include_comment_rating"><input type="checkbox" name="rw_include_comment_rating"
+                                              id="rw_include_comment_rating"
+                                              value="1"<?php 
 checked( true, $rwp->rw_validate_visibility( $comment->comment_ID, 'comment' ) );
 ?>
  /><?php 
-_e( 'Show Rating (Uncheck to Hide)', WP_RW__ID );
+_erw( 'show' );
 ?>
+	(<?php 
+_erw( 'uncheck-to-hide' );
+?>
+)
 </label>
-    <?php 
+<?php 
 // Do not show this option when the comment ratings mode is "Admin ratings only" since in that mode the ratings should be read-only.
 
 if ( !$rwp->is_comment_admin_ratings_mode() ) {
     ?>
-    <br />
-    <label for="rw_readonly_comment_rating"><input type="checkbox" name="rw_readonly_comment_rating" id="rw_readonly_comment_rating" value="1"<?php 
+		<br/>
+		<label for="rw_readonly_comment_rating"><input type="checkbox" name="rw_readonly_comment_rating"
+		                                               id="rw_readonly_comment_rating"
+		                                               value="1"<?php 
     checked( true, !$rwp->is_rating_readonly( $comment->comment_ID, 'comment' ) );
     ?>
  /><?php 
-    _e( 'Active (Uncheck to ReadOnly)', WP_RW__ID );
+    _erw( 'active' );
     ?>
-</label>
-    <?php 
+ (<?php 
+    _erw( 'uncheck-to-readonly' );
+    ?>
+)
+		</label>
+	<?php 
 }
 
 ?>

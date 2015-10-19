@@ -4,11 +4,11 @@
  * Plugin Name: Rating-Widget: Star Review System
  * Plugin URI:  http://rating-widget.com/wordpress-plugin/
  * Description: Create and manage Rating-Widget ratings in WordPress.
- * Version:     2.6.6
+ * Version:     2.6.9
  * Author:      Rating-Widget
  * Author URI:  http://rating-widget.com/wordpress-plugin/
  * License:     GPLv2
- * Text Domain: ratingwidget
+ * Text Domain: rating-widget
  * Domain Path: /langs
  *
  * @package     RatingWidget
@@ -32,6 +32,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
     require_once WP_RW__PLUGIN_LIB_DIR . 'rw-settings.php';
     require_once WP_RW__PLUGIN_LIB_DIR . 'rw-shortcodes.php';
     require_once WP_RW__PLUGIN_DIR . '/lib/logger.php';
+    require_once dirname( __FILE__ ) . '/workflow/start.php';
     /**
      * Rating-Widget Plugin Class
      *
@@ -101,6 +102,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
         {
             $this->account = rw_account();
             $this->fs = rw_fs();
+            $this->wf = rw_wf();
             $this->_options = rw_fs_options();
             if ( WP_RW__DEBUG ) {
                 $this->InitLogger();
@@ -145,7 +147,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             
             if ( $this->fs->is_registered() ) {
                 $this->fs->add_submenu_link_item(
-                    __( 'FAQ', WP_RW__ID ),
+                    __rw( 'faq' ),
                     rw_get_site_url( 'support/wordpress/#platform' ),
                     false,
                     'read',
@@ -170,6 +172,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             add_action( 'admin_enqueue_scripts', array( &$this, 'InitScriptsAndStyles' ) );
             // Enqueue site's styles
             add_action( 'wp_enqueue_scripts', array( &$this, 'init_site_styles' ) );
+            $rw_languages = array();
             require_once WP_RW__PLUGIN_DIR . '/languages/dir.php';
             $this->languages = $rw_languages;
             $this->languages_short = array_keys( $this->languages );
@@ -294,8 +297,8 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
         private function setup_dashboard_actions()
         {
             RWLogger::LogEnterence( 'setup_dashboard_actions' );
-            $this->fs->add_plugin_action_link( __( 'Settings', WP_RW__ADMIN_MENU_SLUG ), rw_get_admin_url() );
-            $this->fs->add_plugin_action_link( __( 'Blog', WP_RW__ADMIN_MENU_SLUG ), rw_get_site_url( '/blog/' ), true );
+            $this->fs->add_plugin_action_link( __rw( 'settings' ), rw_get_admin_url() );
+            $this->fs->add_plugin_action_link( __rw( 'blog' ), rw_get_site_url( '/blog/' ), true );
             
             if ( $this->account->is_registered() ) {
                 add_action( 'wp_ajax_rw-toprated-popup-html', array( &$this, 'generate_toprated_popup_html' ) );
@@ -754,7 +757,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             for ( $count = 1 ;  $count <= $max_item_count ;  $count++ ) {
                 
                 if ( $count === $max_item_count ) {
-                    $max_items['upgrade'] = __( 'Upgrade to Professional for 50 Items', WP_RW__ID );
+                    $max_items['upgrade'] = __rw( 'upgrade_top-rated-table' );
                     break;
                 }
                 
@@ -762,17 +765,17 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             }
             // Initialize the available types
             $types = array(
-                'pages' => __( 'Pages', WP_RW__ID ),
-                'posts' => __( 'Posts', WP_RW__ID ),
+                'pages' => __rw( 'pages' ),
+                'posts' => __rw( 'posts' ),
             );
             if ( $woocommerce_installed ) {
-                $types['products'] = __( 'Products', WP_RW__ID );
+                $types['products'] = __rw( 'products' );
             }
             if ( $bbpress_installed ) {
-                $types['forum_posts'] = __( 'Topics', WP_RW__ID );
+                $types['forum_posts'] = __rw( 'topics' );
             }
             if ( $bbpress_installed || $buddypress_installed ) {
-                $types['users'] = __( 'Users', WP_RW__ID );
+                $types['users'] = __rw( 'users' );
             }
             $rw_toprated_options = array(
                 'fields'                => array(
@@ -1223,7 +1226,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             
             if ( !is_object( $comment_ratings_mode_settings ) ) {
                 $comment_ratings_mode_settings = $this->_OPTIONS_DEFAULTS[WP_RW__DB_OPTION_IS_ADMIN_COMMENT_RATINGS_SETTINGS];
-                $comment_review_mode_settings = get_comment_review_mode_settings();
+                $comment_review_mode_settings = $this->get_comment_review_mode_settings();
                 $comment_ratings_mode_settings->comment_ratings_mode = ( $comment_review_mode_settings->is_comment_review_mode ? 'true' : 'false' );
             }
             
@@ -1778,7 +1781,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 'criteria'            => array(
                 time() => array(),
             ),
-                'summary_label'       => __( 'Summary', WP_RW__ID ),
+                'summary_label'       => __rw( 'summary' ),
                 'show_summary_rating' => true,
             );
             $this->_OPTIONS_DEFAULTS = array(
@@ -1982,12 +1985,9 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             }
             
             $token = md5( $pTimestamp . $this->account->site_secret_key );
-            if ( RWLogger::IsOn() ) {
-                RWLogger::Log( 'TOKEN', $token );
-            }
             
             if ( RWLogger::IsOn() ) {
-                $params = func_get_args();
+                RWLogger::Log( 'TOKEN', $token );
                 RWLogger::LogDeparture( 'GenerateToken', $token );
             }
             
@@ -2390,7 +2390,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                     add_action( 'all_admin_notices', array( &$this, 'ConfirmationNotice' ) );
                 }
             }
-            $title = WP_RW__NAME . ' ' . __( 'Settings', WP_RW__ID );
+            $title = WP_RW__NAME . ' ' . __rw( 'settings' );
             add_options_page(
                 $title,
                 WP_RW__NAME,
@@ -2445,7 +2445,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             $submenu = array();
             // Basic settings.
             $submenu[] = array(
-                'menu_title' => __( 'Settings', WP_RW__ID ),
+                'menu_title' => __rw( 'settings' ),
                 'function'   => 'SettingsPage',
                 'slug'       => '',
             );
@@ -2470,7 +2470,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             ) ) {
                 // Top-Rated Promotion Page.
                 $submenu[] = array(
-                    'menu_title'    => __( 'Top-Rated Widget', WP_RW__ID ),
+                    'menu_title'    => __rw( 'top-rated-widget' ),
                     'function'      => 'TopRatedSettingsPageRender',
                     'load_function' => 'TopRatedSettingsPageLoad',
                     'slug'          => 'toprated',
@@ -2478,33 +2478,36 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             }
             // Reports.
             $submenu[] = array(
-                'menu_title' => __( 'Reports', WP_RW__ID ),
+                'menu_title' => __rw( 'reports' ),
                 'function'   => 'ReportsPageRender',
             );
             // Advanced settings.
             $submenu[] = array(
-                'menu_title' => __( 'Advanced', WP_RW__ID ),
+                'menu_title' => __rw( 'advanced' ),
                 'function'   => 'AdvancedSettingsPageRender',
             );
             // Affiliation application page.
             $submenu[] = array(
-                'menu_title' => __( 'Affiliation', WP_RW__ID ),
+                'menu_title' => __rw( 'affiliation' ),
                 'function'   => 'affiliation_settings_page_render',
             );
+            /*
             // Add Ons page
             $submenu[] = array(
-                'menu_title' => __( 'Add Ons', WP_RW__ID ),
-                'function'   => 'addons_settings_page_render',
-                'slug'       => 'addons',
+            	'menu_title' => __rw('add-ons'),
+            	'function' => 'addons_settings_page_render',
+            	'slug' => 'addons'
             );
+            */
+            $submenu = apply_filters( 'ratingwidget_dashboard_submenus', $submenu );
             foreach ( $submenu as $item ) {
                 $this->fs->add_submenu_item(
                     $item['menu_title'],
-                    array( &$this, $item['function'] ),
-                    __( 'Ratings', WP_RW__ID ) . '&ndash;' . $item['menu_title'],
+                    ( is_array( $item['function'] ) ? $item['function'] : array( &$this, $item['function'] ) ),
+                    __rw( 'ratings' ) . '&ndash;' . $item['menu_title'],
                     'edit_posts',
                     ( isset( $item['slug'] ) ? $item['slug'] : false ),
-                    ( isset( $item['load_function'] ) && !empty($item['load_function']) ? array( &$this, $item['load_function'] ) : false )
+                    ( isset( $item['load_function'] ) && !empty($item['load_function']) ? ( is_array( $item['load_function'] ) ? $item['load_function'] : array( &$this, $item['load_function'] ) ) : false )
                 );
             }
         }
@@ -2673,7 +2676,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 
                 ?>
 					<div class="updated"><p><strong><?php 
-                _e( 'Settings successfully saved.', WP_RW__ID );
+                _erw( 'settings-successfully-saved' );
                 ?>
 </strong></p></div>
 				<?php 
@@ -2723,12 +2726,12 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             ?>
 				<div class="wrap rw-dir-ltr rw-wp-container">
 					<h2><?php 
-            echo  __( 'Increase User Retention and Pageviews', WP_RW__ID ) ;
+            _erw( 'toprated_increase-retention' );
             ?>
 </h2>
 					<div>
 						<p style="font-weight: bold; font-size: 14px;"><?php 
-            _e( 'With the Top-Rated Sidebar Widget readers will stay on your site for a longer period of time.', WP_RW__ID );
+            _erw( 'toprated_stay-longer', WP_RW__ID );
             ?>
 </p>
 						<ul>
@@ -2760,37 +2763,37 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             echo  get_admin_url( null, 'widgets.php' ) ;
             ?>
 " class="button-primary" style="margin-left: 20px; display: block; text-align: center; width: 720px;"><?php 
-            _e( 'Add Widget Now!', WP_RW__ID );
+            _erw( 'add-widget-now' );
             ?>
 </a>
 							</li>
 							<li>
 								<h3><?php 
-            _e( 'How', WP_RW__ID );
+            _erw( 'how' );
             ?>
 </h3>
 								<p><?php 
-            _e( 'Expose your readers to the top rated posts onsite that they might not have otherwise noticed and increase your chance to reduce the bounce rate.', WP_RW__ID );
+            _erw( 'toprated_how-desc' );
             ?>
 </p>
 							</li>
 							<li>
 								<h3><?php 
-            _e( 'What', WP_RW__ID );
+            _erw( 'what' );
             ?>
 </h3>
 								<p><?php 
-            _e( 'The Top-Rated Widget is a beautiful sidebar widget containing the top rated posts on your blog.', WP_RW__ID );
+            _erw( 'toprated_what-desc' );
             ?>
 </p>
 							</li>
 							<li>
 								<h3><?php 
-            _e( 'Install', WP_RW__ID );
+            _erw( 'install' );
             ?>
 </h3>
 								<p><?php 
-            _e( 'Go to', WP_RW__ID );
+            _erw( 'go-to' );
             ?>
  <b><i><a href="<?php 
             echo  get_admin_url( null, 'widgets.php' ) ;
@@ -2803,21 +2806,21 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
 							</li>
 							<li>
 								<h3><?php 
-            _e( 'New', WP_RW__ID );
+            _erw( 'new' );
             ?>
 </h3>
 								<p><?php 
-            _e( 'Thumbnails: a beautiful new thumbnail display, for themes which use post thumbnails (featured images).', WP_RW__ID );
+            _erw( 'toprated_new-desc' );
             ?>
 </p>
 							</li>
 							<li>
 								<h3><?php 
-            _e( 'Performance', WP_RW__ID );
+            _erw( 'performance' );
             ?>
 </h3>
 								<p><?php 
-            _e( 'The widget is performant, caching the top posts and featured images\' thumbnails as your site is visited.', WP_RW__ID );
+            _erw( 'toprated_performance-desc' );
             ?>
 </p>
 							</li>
@@ -2826,7 +2829,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             echo  get_admin_url( null, 'widgets.php' ) ;
             ?>
 " class="button-primary"><?php 
-            _e( 'Add Widget Now!', WP_RW__ID );
+            _erw( 'add-widget-now' );
             ?>
 </a>
 							</li>
@@ -2858,16 +2861,18 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             RWLogger::LogEnterence( 'SettingsPage' );
             // Must check that the user has the required capability.
             if ( !current_user_can( 'manage_options' ) ) {
-                wp_die( __( 'You do not have sufficient permissions to access this page.', WP_RW__ID ) );
+                wp_die( __rw( 'no-sufficient-permissions' ) );
             }
             global  $plugin_page ;
             // Variables for the field and option names
             $rw_form_hidden_field_name = 'rw_form_hidden_field_name';
+            $settings_data = array();
+            $selected_key = 'dummy';
             
             if ( $plugin_page === $this->GetMenuSlug( 'buddypress' ) && $this->IsBuddyPressInstalled() ) {
                 $settings_data = array(
                     'activity-blog-posts'    => array(
-                    'tab'           => 'Activity Blog Posts',
+                    'tab'           => __rw( 'activity-blog-posts' ),
                     'class'         => 'new-blog-post',
                     'options'       => WP_RW__ACTIVITY_BLOG_POSTS_OPTIONS,
                     'align'         => WP_RW__ACTIVITY_BLOG_POSTS_ALIGN,
@@ -2876,7 +2881,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                     'show_align'    => true,
                 ),
                     'activity-blog-comments' => array(
-                    'tab'           => 'Activity Blog Comments',
+                    'tab'           => __rw( 'activity-blog-comments' ),
                     'class'         => 'new-blog-comment',
                     'options'       => WP_RW__ACTIVITY_BLOG_COMMENTS_OPTIONS,
                     'align'         => WP_RW__ACTIVITY_BLOG_COMMENTS_ALIGN,
@@ -2885,7 +2890,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                     'show_align'    => true,
                 ),
                     'activity-updates'       => array(
-                    'tab'           => 'Activity Updates',
+                    'tab'           => __rw( 'activity-updates' ),
                     'class'         => 'activity-update',
                     'options'       => WP_RW__ACTIVITY_UPDATES_OPTIONS,
                     'align'         => WP_RW__ACTIVITY_UPDATES_ALIGN,
@@ -2894,7 +2899,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                     'show_align'    => true,
                 ),
                     'activity-comments'      => array(
-                    'tab'           => 'Activity Comments',
+                    'tab'           => __rw( 'activity-comments' ),
                     'class'         => 'activity-comment',
                     'options'       => WP_RW__ACTIVITY_COMMENTS_OPTIONS,
                     'align'         => WP_RW__ACTIVITY_COMMENTS_ALIGN,
@@ -2903,7 +2908,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                     'show_align'    => true,
                 ),
                     'users'                  => array(
-                    'tab'           => 'Users Profiles',
+                    'tab'           => __rw( 'user-profiles' ),
                     'class'         => 'user',
                     'options'       => WP_RW__USERS_OPTIONS,
                     'align'         => WP_RW__USERS_ALIGN,
@@ -2921,7 +2926,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 if ( $plugin_page === $this->GetMenuSlug( 'bbpress' ) && $this->IsBBPressInstalled() ) {
                     $settings_data = array(
                         'forum-posts'          => array(
-                        'tab'           => 'Forum Posts',
+                        'tab'           => __rw( 'forum-posts' ),
                         'class'         => 'forum-post',
                         'options'       => WP_RW__FORUM_POSTS_OPTIONS,
                         'align'         => WP_RW__FORUM_POSTS_ALIGN,
@@ -2930,7 +2935,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                         'show_align'    => true,
                     ),
                         'activity-forum-posts' => array(
-                        'tab'           => 'Activity Forum Posts',
+                        'tab'           => __rw( 'activity-forum-posts' ),
                         'class'         => 'new-forum-post',
                         'options'       => WP_RW__ACTIVITY_FORUM_POSTS_OPTIONS,
                         'align'         => WP_RW__ACTIVITY_FORUM_POSTS_ALIGN,
@@ -2939,7 +2944,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                         'show_align'    => true,
                     ),
                         'users'                => array(
-                        'tab'           => 'Users Profiles',
+                        'tab'           => __rw( 'user-profiles' ),
                         'class'         => 'user',
                         'options'       => WP_RW__USERS_OPTIONS,
                         'align'         => WP_RW__USERS_ALIGN,
@@ -2957,7 +2962,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                     if ( $plugin_page === $this->GetMenuSlug( 'user' ) ) {
                         $settings_data = array(
                             'users-posts'    => array(
-                            'tab'           => 'Posts',
+                            'tab'           => __rw( 'posts' ),
                             'class'         => 'user-post',
                             'options'       => WP_RW__USERS_POSTS_OPTIONS,
                             'align'         => WP_RW__USERS_POSTS_ALIGN,
@@ -2966,7 +2971,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                             'show_align'    => false,
                         ),
                             'users-pages'    => array(
-                            'tab'           => 'Pages',
+                            'tab'           => __rw( 'pages' ),
                             'class'         => 'user-page',
                             'options'       => WP_RW__USERS_PAGES_OPTIONS,
                             'align'         => WP_RW__USERS_PAGES_ALIGN,
@@ -2975,7 +2980,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                             'show_align'    => false,
                         ),
                             'users-comments' => array(
-                            'tab'           => 'Comments',
+                            'tab'           => __rw( 'comments' ),
                             'class'         => 'user-comment',
                             'options'       => WP_RW__USERS_COMMENTS_OPTIONS,
                             'align'         => WP_RW__USERS_COMMENTS_ALIGN,
@@ -2987,7 +2992,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                         
                         if ( $this->IsBuddyPressInstalled() ) {
                             $settings_data['users-activity-updates'] = array(
-                                'tab'           => 'Activity Updates',
+                                'tab'           => __rw( 'activity-updates' ),
                                 'class'         => 'user-activity-update',
                                 'options'       => WP_RW__USERS_ACTIVITY_UPDATES_OPTIONS,
                                 'align'         => WP_RW__USERS_ACTIVITY_UPDATES_ALIGN,
@@ -2996,7 +3001,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                                 'show_align'    => false,
                             );
                             $settings_data['users-activity-comments'] = array(
-                                'tab'           => 'Activity Comments',
+                                'tab'           => __rw( 'activity-comments' ),
                                 'class'         => 'user-activity-comment',
                                 'options'       => WP_RW__USERS_ACTIVITY_COMMENTS_OPTIONS,
                                 'align'         => WP_RW__USERS_ACTIVITY_COMMENTS_ALIGN,
@@ -3006,7 +3011,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                             );
                             if ( $this->IsBBPressInstalled() ) {
                                 $settings_data['users-forum-posts'] = array(
-                                    'tab'           => 'Forum Posts',
+                                    'tab'           => __rw( 'forum-posts' ),
                                     'class'         => 'user-forum-post',
                                     'options'       => WP_RW__USERS_FORUM_POSTS_OPTIONS,
                                     'align'         => WP_RW__USERS_FORUM_POSTS_ALIGN,
@@ -3035,7 +3040,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                         if ( !$is_extension ) {
                             $settings_data = array(
                                 'blog-posts'  => array(
-                                'tab'           => 'Blog Posts',
+                                'tab'           => __rw( 'blog-posts' ),
                                 'class'         => 'blog-post',
                                 'options'       => WP_RW__BLOG_POSTS_OPTIONS,
                                 'align'         => WP_RW__BLOG_POSTS_ALIGN,
@@ -3044,7 +3049,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                                 'show_align'    => true,
                             ),
                                 'front-posts' => array(
-                                'tab'           => 'Front Page Posts',
+                                'tab'           => __rw( 'front-page-posts' ),
                                 'class'         => 'front-post',
                                 'options'       => WP_RW__FRONT_POSTS_OPTIONS,
                                 'align'         => WP_RW__FRONT_POSTS_ALIGN,
@@ -3053,7 +3058,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                                 'show_align'    => true,
                             ),
                                 'comments'    => array(
-                                'tab'           => 'Comments',
+                                'tab'           => __rw( 'comments' ),
                                 'class'         => 'comment',
                                 'options'       => WP_RW__COMMENTS_OPTIONS,
                                 'align'         => WP_RW__COMMENTS_ALIGN,
@@ -3062,7 +3067,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                                 'show_align'    => true,
                             ),
                                 'pages'       => array(
-                                'tab'           => 'Pages',
+                                'tab'           => __rw( 'pages' ),
                                 'class'         => 'page',
                                 'options'       => WP_RW__PAGES_OPTIONS,
                                 'align'         => WP_RW__PAGES_ALIGN,
@@ -3246,9 +3251,10 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 $this->SetOption( WP_RW__VISIBILITY_SETTINGS, $this->_visibilityList );
                 ?>
 					<div class="updated"><p><strong><?php 
-                _e( 'Settings successfully saved.', WP_RW__ID );
+                _erw( 'settings-successfully-saved' );
                 ?>
-</strong></p></div>
+</strong>
+						</p></div>
 				<?php 
             } else {
                 /* Get rating alignment.
@@ -3292,6 +3298,8 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 $this->custom_settings_list->{$rw_class} = '';
             }
             $rw_custom_settings = $this->custom_settings_list->{$rw_class};
+            $dictionary = array( 'DUMMY' );
+            $dir = $hor = 'dummy';
             require_once WP_RW__PLUGIN_DIR . "/languages/{$rw_language_str}.php";
             require_once WP_RW__PLUGIN_DIR . '/lib/defaults.php';
             require_once WP_RW__PLUGIN_DIR . '/lib/def_settings.php';
@@ -3316,6 +3324,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 }
                 
                 if ( isset( $RW_THEMES[$rw_options->type][$rw_options->theme] ) ) {
+                    $theme = array( 'DUMMY' );
                     require WP_RW__PLUGIN_DIR . '/themes/' . $RW_THEMES[$rw_options->type][$rw_options->theme]['file'];
                     $theme_font_size_set = isset( $theme['options']->advanced ) && isset( $theme['options']->advanced->font ) && isset( $theme['options']->advanced->font->size );
                     $theme_line_height_set = isset( $theme['options']->advanced ) && isset( $theme['options']->advanced->layout ) && isset( $theme['options']->advanced->layout->lineHeight );
@@ -3393,13 +3402,14 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                     'message' => false,
                 ) ) ) ;
                 ?>
-" class="nav-tab<?php 
+"
+							   class="nav-tab<?php 
                 if ( $settings_data[$key] == $rw_current_settings ) {
                     echo  ' nav-tab-active' ;
                 }
                 ?>
 "><?php 
-                _e( $settings['tab'], WP_RW__ID );
+                echo  $settings['tab'] ;
                 ?>
 </a>
 						<?php 
@@ -3421,12 +3431,14 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             ?>
 											<div style="padding: 10px;">
 												<label for="rw_show">
-													<input id="rw_show" type="checkbox" name="rw_show" value="true"<?php 
+													<input id="rw_show" type="checkbox" name="rw_show"
+													       value="true"<?php 
             if ( $enabled ) {
                 echo  ' checked="checked"' ;
             }
             ?>
- onclick="RWM_WP.enable(this);" /> Enable for <?php 
+ onclick="RWM_WP.enable(this);"/> Enable
+													for <?php 
             echo  $rw_current_settings['tab'] ;
             ?>
 												</label>
@@ -3471,13 +3483,14 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 }
                 ?>
 															</select>
-															<input id="rw_align" name="rw_align" type="hidden" value="<?php 
+															<input id="rw_align" name="rw_align" type="hidden"
+															       value="<?php 
                 echo  $rw_align->ver . ' ' . $rw_align->hor ;
                 ?>
 ">
 															<script>
-																(function($) {
-																	$('.rw-post-rating-align select').chosen({width: '100%'}).change(function(evt, params){
+																(function ($) {
+																	$('.rw-post-rating-align select').chosen({width: '100%'}).change(function (evt, params) {
 																		$('#rw_align').val(params.selected);
 																	});
 																})(jQuery);
@@ -3527,18 +3540,9 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             
             }
             ?>
-								<?php 
-            ?>
-								<?php 
-            ?>
 							</div>
 						</div>
 					</form>
-					<div class="rw-body">
-						<?php 
-            rw_include_once_view( 'settings/custom_color.php' );
-            ?>
-					</div>
 				</div>
 				<?php 
             fs_require_template( 'powered-by.php' );
@@ -3913,7 +3917,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                         $visibility_list->{$add_to}[] = $pId;
                     }
                     if ( ($key = array_search( $pId, $visibility_list->{$remove_from} )) !== false ) {
-                        $remove_from = array_splice( $visibility_list->{$remove_from}, $key, 1 );
+                        array_splice( $visibility_list->{$remove_from}, $key, 1 );
                     }
                     if ( WP_RW__VISIBILITY_EXCLUDE == $visibility_list->selected && 0 === count( $visibility_list->exclude ) ) {
                         $visibility_list->selected = WP_RW__VISIBILITY_ALL_VISIBLE;
@@ -3981,7 +3985,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 }
                 if ( ($key = array_search( $post_id, $readonly_list->{$remove_from} )) !== false ) {
                     // Remove from the exclude list.
-                    $remove_from = array_splice( $readonly_list->{$remove_from}, $key, 1 );
+                    array_splice( $readonly_list->{$remove_from}, $key, 1 );
                 }
             }
             if ( RWLogger::IsOn() ) {
@@ -4756,6 +4760,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
         public function AddBBPressForumThreadUserRating( $author_link, $args )
         {
             RWLogger::LogEnterence( 'AddBBPressForumThreadUserRating' );
+            $post_id = 0;
             $defaults = array(
                 'post_id'    => 0,
                 'link_title' => '',
@@ -5174,6 +5179,11 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 ?>
  - https://rating-widget.com/wordpress-plugin/ -->
 					<div class="rw-js-container">
+						<?php 
+                if ( rw_fs()->_has_addons() ) {
+                    rw_wf()->print_site_script();
+                }
+                ?>
 						<script type="text/javascript">
 
 							// Initialize ratings.
@@ -5231,6 +5241,35 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
 							<?php 
                         echo  $this->GetCustomSettings( $alias ) ;
                         ?>
+							<?php 
+                        if ( rw_fs()->_has_addons() ) {
+                            ?>
+								if ( WF_Engine ) {
+									var _beforeRate = options.beforeRate ? options.beforeRate : false;
+									options.beforeRate = function(rating, score) {
+										var returnValue = true;
+										if (false !== _beforeRate) {
+											returnValue = _beforeRate(rating, score);
+										}
+
+										return WF_Engine.eval( 'beforeVote', rating, score, returnValue );
+									};
+
+									var _afterRate = options.afterRate ? options.afterRate : false;
+									options.afterRate = function(success, score, rating) {
+										if (false !== _afterRate) {
+											_afterRate(success, score, rating);
+										}
+
+										WF_Engine.eval( 'afterVote', rating, score );
+
+										return true;
+									};
+								}
+							<?php 
+                        }
+                        ?>
+									
 							RW.initClass("<?php 
                         echo  $criteria_class ;
                         ?>
@@ -5544,7 +5583,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
             if ( $stats['votes'] >= 1 ) {
                 wp_add_dashboard_widget(
                     'rw-stats-dashboard-widget',
-                    __( ' ', WP_RW__ID ),
+                    ' ',
                     array( &$this, 'stats_widget_callback' ),
                     null,
                     $stats
@@ -6377,7 +6416,7 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
                 'menu_slug'        => 'rating-widget',
                 'is_live'          => true,
                 'is_premium'       => false,
-                'has_addons'       => false,
+                'has_addons'       => true,
                 'has_paid_plans'   => true,
                 'enable_anonymous' => false,
             ) );
@@ -6493,12 +6532,26 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
     if ( rw_request_is_action( 'rw_reset_account' ) && !$rw_fs->is_ajax() ) {
         rw_reset_account();
     } else {
+        
         if ( !$fs->is_registered() && ($fs->is_plugin_upgrade_mode() || rw_request_is_action( 'rw_migrate_to_freemius' )) ) {
             // Migration to new Freemius account management.
             if ( rw_migration_to_freemius() ) {
                 $fs->set_plugin_upgrade_complete();
             }
+        } else {
+            
+            if ( $fs->is_registered() && $fs->is_plugin_upgrade_mode() && ('2.6.7' === $fs->get_plugin_version() || '2.6.8' === $fs->get_plugin_version()) ) {
+                $fs->add_sticky_admin_message(
+                    __rw( 'tweets-promotion_msg' ) . sprintf( '<a style="margin-left: 10px;" href="%s"><button class="button button-primary">%s &nbsp;&#10140;</button></a>', rw_fs()->addon_url( 'rw-addon-tweets' ), __rw( 'learn-more' ) ),
+                    'tweets-release',
+                    __rw( 'tweets-promotion_title' ),
+                    'promotion'
+                );
+                $fs->set_plugin_upgrade_complete();
+            }
+        
         }
+    
     }
     
     /**
@@ -6509,11 +6562,10 @@ if ( !class_exists( 'RatingWidgetPlugin' ) ) {
      * way.
      */
     //define('WP_RW___LATE_LOAD', 20);
-    
-    if ( defined( 'WP_RW___LATE_LOAD' ) ) {
-        add_action( 'plugins_loaded', 'ratingwidget', (int) WP_RW___LATE_LOAD );
-    } else {
-        $GLOBALS['rw'] = ratingwidget();
-    }
-
+    //		if (defined('WP_RW___LATE_LOAD')) {
+    //			add_action( 'plugins_loaded', 'ratingwidget', (int) WP_RW___LATE_LOAD );
+    //		} else {
+    $GLOBALS['rw'] = ratingwidget();
+    //		}
+    do_action( 'ratingwidget_loaded' );
 }
